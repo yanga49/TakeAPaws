@@ -75,7 +75,7 @@ export class CenterPanel {
 
     private _getHtmlForWebview(webview: Webview) {
         const styleResetUri = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "css", "reset.css"));
-        const scriptUri = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "js", "infinite-poc-panel.js"));
+        const scriptUri = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "js", "takeapaws-panel.js"));
         const styleVSCodeUri = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "css", "vscode.css"));
 
         const nonce = getNonce();

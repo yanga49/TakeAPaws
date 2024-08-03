@@ -6,8 +6,6 @@ import { commands, ExtensionContext, Uri, window, workspace } from "vscode";
  * and then stop the server.
  */
 export function registerCallbackRequest(context: ExtensionContext) {
-    // Redirect URL : vscode://ng.infinite-poc?token=some-jwt-token
-    // Redirect URL format : vscode://<publisher>.<extension-name>?<key>=<value>
     const handleUri = (uri: any) => {
         console.log(uri);
         const queryParams = new URLSearchParams(uri.query);

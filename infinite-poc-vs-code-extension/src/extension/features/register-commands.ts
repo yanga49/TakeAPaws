@@ -1,14 +1,14 @@
 import { commands, ExtensionContext, OutputChannel, window } from "vscode";
 
 export function registerCommands(context: ExtensionContext, op: OutputChannel) {
-    context.subscriptions.push(commands.registerCommand('infinite-poc.dialog-modal-message', () => {
+    context.subscriptions.push(commands.registerCommand('takeapaws.dialog-modal-message', () => {
         window.showInformationMessage('This is Dialog modal message example', {
             modal: true,
             detail: 'How many cats, do you see 🐈🐈🐈 in the message?'
         }, '1', '2', '3', '4').then(result => processUserSelection(result));
     }));
 
-    context.subscriptions.push(commands.registerCommand('infinite-poc.ask-user', () => {
+    context.subscriptions.push(commands.registerCommand('takeapaws.ask-user', () => {
         window.showInformationMessage('How many cats, do you see 🐈🐈🐈 in the message?', '1', '2', '3', '4')
             .then(result => processUserSelection(result));
     }));

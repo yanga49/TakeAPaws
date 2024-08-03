@@ -12,7 +12,7 @@ interface EmotionData {
 
 export function registerWebViewProvider(context: ExtensionContext, op: OutputChannel) {
     const provider = new SidebarWebViewProvider(context.extensionUri, context);
-    context.subscriptions.push(window.registerWebviewViewProvider('infinite-poc-sidebar-panel', provider));
+    context.subscriptions.push(window.registerWebviewViewProvider('takeapaws-sidebar-panel', provider));
 
     context.subscriptions.push(commands.registerCommand('ipoc.print.editor.menu', () => {
         const txt = readSelectedOrAllText(op);

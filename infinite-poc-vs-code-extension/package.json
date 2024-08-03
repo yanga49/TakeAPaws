@@ -1,5 +1,5 @@
 {
-  "name": "infinite-poc",
+  "name": "takeapaws",
   "publisher": "ng",
   "displayName": "Take A Paws",
   "description": "Intelligent Cat Coding Companion",
@@ -13,7 +13,7 @@
   ],
   "activationEvents": [
     "*",
-    "onCommand:infinite-poc.dialog-modal-message"
+    "onCommand:takeapaws.dialog-modal-message"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -26,17 +26,17 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "infinite-poc-view",
+          "id": "takeapaws-view",
           "title": "Take A Paws",
           "icon": "media/icons/infinity-svgrepo-com.svg"
         }
       ]
     },
     "views": {
-      "infinite-poc-view": [
+      "takeapaws-view": [
         {
           "type": "webview",
-          "id": "infinite-poc-sidebar-panel",
+          "id": "takeapaws-sidebar-panel",
           "name": "Take A Paws",
           "icon": "media/icons/beaker.svg"
         }
@@ -44,12 +44,12 @@
     },
     "commands": [
       {
-        "command": "infinite-poc.dialog-modal-message",
+        "command": "takeapaws.dialog-modal-message",
         "title": "Show Dialog Modal Message",
         "category": "ipoc"
       },
       {
-        "command": "infinite-poc.ask-user",
+        "command": "takeapaws.ask-user",
         "title": "Ask user a question?",
         "category": "ipoc"
       },
@@ -174,7 +174,6 @@
             "type": "string"
           },
           "default": [
-            "https://www.youtube.com/c/InfinitePOC",
             "https://www.google.com/"
           ]
         }
