@@ -30,7 +30,7 @@ function activate(context) {
     let disposable = vscode.commands.registerCommand('takeapaws.startEmotionDetection', async () => {
         vscode.window.showInformationMessage('Starting Emotion Detection...');
         // Create a new webview panel
-        const panel = vscode.window.createWebviewPanel('emotionDetection', 'Emotion Detection', vscode.ViewColumn.One, {
+        const panel = vscode.window.createWebviewPanel('emotionDetection', 'Emotion Detection', vscode.ViewColumn.Beside, {
             enableScripts: true
         });
         panel.webview.html = getWebviewContent();
@@ -70,9 +70,25 @@ function getWebviewContent() {
     return `
     <!DOCTYPE html>
     <html lang="en">
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 10px;
+                width: 300px; /* Set the width of the webview */
+                height: 100%; /* Ensure it takes full height of the panel */
+                overflow: hidden; /* Hide overflow to prevent scrolling */
+            }
+            #message {
+                font-size: 16px;
+                text-align: center;
+            }
+        </style>
+    </head>
     <body>
         <h1>Emotion Detection</h1>
-        <div id="message"></div>
+        <div id="message">Waiting for emotion data...</div>
         <script>
             const vscode = acquireVsCodeApi();
             window.addEventListener('message', event => {

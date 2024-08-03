@@ -13,7 +13,7 @@ export function activate(context: vscode.ExtensionContext) {
         const panel = vscode.window.createWebviewPanel(
             'emotionDetection',
             'Emotion Detection',
-            vscode.ViewColumn.One,
+            vscode.ViewColumn.Beside,
             {
                 enableScripts: true
             }
