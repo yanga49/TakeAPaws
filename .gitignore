@@ -1,96 +1,56 @@
-# Node.js
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Node.js dependencies
+/node_modules/
 
-# Logs
-logs
-*.log
-logs/*.log
-pids
-*.pid
-*.seed
-*.pid.lock
+# Compiled JavaScript files
+/dist/
+/build/
 
-# Dependency directories
-jspm_packages/
-# Next.js build output
-.next/
-# Nuxt.js build output
-.nuxt/
-# Gatsby files
-.cache/
-# VuePress build output
-.vuepress/dist/
-# Serverless directories
-.serverless/
-# FuseBox cache
-.fusebox/
-# DynamoDB Local files
-.local/
+# TypeScript output directory
+/tsconfig.json
 
-# Coverage directories
-coverage/
-*.lcov
-
-# Production files
-build/
-dist/
-tmp/
-temp/
-
-# IntelliJ
-.idea/
-
-# Mac
-.DS_Store
-
-# VSCode
-.vscode/
-.history/
-
-# Local env files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Temporary files
-*.swp
-*.swo
-*.bak
-*.orig
-*.save
-
-# Vim
-*.swp
-*.swo
-
-# ESLint cache
-.eslintcache
-
-# TypeScript
+# TypeScript build cache
 *.tsbuildinfo
 
-# Parcel cache
-.cache
-.parcel-cache
+# Python dependencies
+/venv/
+/.env
+*.pyc
+__pycache__/
 
-# Svelte
-__sapper__/
-.svelte/
+# Flask instance folder
+instance/
 
-# Storybook
-storybook-static/
+# Flask configuration
+*.env
+*.flaskenv
 
-# Cypress
-.cypress_cache/
-.cypress/
+# IDE/Editor files
+.vscode/
+.idea/
+*.suo
+*.ntvs_analysis.dat
+*.ncb
+*.swp
+*.sublime-workspace
+*.sublime-project
 
-# Next.js
-.next/
-out/
-# Nuxt.js
-.nuxt/
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+
+# Coverage reports
+coverage/
+*.cover
+*.ncover
+
+# Parcel cache (if using Parcel bundler)
+/.cache/
