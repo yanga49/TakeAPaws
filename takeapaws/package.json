@@ -1,0 +1,47 @@
+{
+  "name": "takeapaws",
+  "displayName": "TakeAPaws",
+  "description": "A VSCode extension that detects emotions and provides messages.",
+  "version": "0.0.1",
+  "publisher": "your-publisher",
+  "engines": {
+      "vscode": "^1.85.2"
+  },
+  "activationEvents": [
+      "onView:takeapaws.emotionView"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+      "views": {
+          "explorer": [
+              {
+                  "id": "takeapaws.emotionView",
+                  "name": "Emotion Detection"
+              }
+          ]
+      },
+      "commands": [
+          {
+              "command": "takeapaws.startEmotionDetection",
+              "title": "Start Emotion Detection"
+          }
+      ]
+  },
+  "scripts": {
+      "vscode:prepublish": "npm run build",
+      "build": "tsc -p ./",
+      "lint": "eslint . --ext .ts",
+      "test": "npm run lint && npm run build && node ./out/test/runTest.js"
+  },
+  "dependencies": {
+      "node-fetch": "^3.2.6"
+  },
+  "devDependencies": {
+      "typescript": "^4.0.0",
+      "tslint": "^6.0.0",
+      "eslint": "^7.0.0",
+      "eslint-plugin-import": "^2.0.0",
+      "@types/node": "^14.0.0",
+      "@types/vscode": "^1.1.0"
+  }
+}
