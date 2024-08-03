@@ -5,6 +5,11 @@ import { getNonce } from "../util";
 import { CustomEvent } from "./custom-event";
 import { CenterPanel } from "./register-center-panel";
 
+interface EmotionData {
+    emotion: string;
+    score: number;
+}
+
 export function registerWebViewProvider(context: ExtensionContext, op: OutputChannel) {
     const provider = new SidebarWebViewProvider(context.extensionUri, context);
     context.subscriptions.push(window.registerWebviewViewProvider('infinite-poc-sidebar-panel', provider));
@@ -16,6 +21,8 @@ export function registerWebViewProvider(context: ExtensionContext, op: OutputCha
 }
 
 export class SidebarWebViewProvider implements WebviewViewProvider {
+    private emotionFetchInterval: NodeJS.Timeout | null = null;
+
     constructor(private readonly _extensionUri: Uri, public extensionContext: ExtensionContext) { }
     view?: WebviewView;
 
@@ -37,21 +44,23 @@ export class SidebarWebViewProvider implements WebviewViewProvider {
             console.log('Received message from webview:', data);
             // Handle messages here
         });
+
+        // Start fetching emotion data periodically
+        this.startFetchingEmotionData(webviewView.webview);
     }
 
     private _getHtmlForWebview(webview: Webview) {
         const styleResetUri = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "css", "reset.css"));
-        const scriptUri = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "js", "infinite-poc-panel.js"));
         const styleVSCodeUri = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "css", "vscode.css"));
-    
+
         const nonce = getNonce();
-    
+
         const happyGif = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "happycat.gif"));
         const sadGif = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "sadcat.gif"));
         const excitedGif = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "excitedcat.gif"));
         const angryGif = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "angrycat.gif"));
         const defaultGif = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "defaultcat.gif"));
-    
+
         return `<!DOCTYPE html>
     <html lang="en">
         <head>
@@ -65,42 +74,36 @@ export class SidebarWebViewProvider implements WebviewViewProvider {
             <title>Cat GIFs</title>
         </head>
         <body>
-            <div>
-                <button id="happyButton">Happy</button>
-                <button id="sadButton">Sad</button>
-                <button id="excitedButton">Excited</button>
-                <button id="angryButton">Angry</button>
-                <img id="animationGif" width="400" src="${defaultGif}" alt="Animation">
-            </div>
+            <img id="animationGif" width="400" src="${defaultGif}" alt="Animation">
     
             <!-- Place script at the bottom to ensure the DOM is fully loaded -->
             <script nonce="${nonce}">
-                console.log('Script loaded');
-                
-                document.getElementById('happyButton').addEventListener('click', () => {
-                    showGif('happy');
+                const vscode = acquireVsCodeApi();
+                window.addEventListener('message', event => {
+                    const message = event.data;
+                    switch (message.command) {
+                        case 'updateEmotion':
+                            updateGif(message.emotion);
+                            break;
+                    }
                 });
-                document.getElementById('sadButton').addEventListener('click', () => {
-                    showGif('sad');
-                });
-                document.getElementById('excitedButton').addEventListener('click', () => {
-                    showGif('excited');
-                });
-                document.getElementById('angryButton').addEventListener('click', () => {
-                    showGif('angry');
-                });
-    
-                function showGif(emotion) {
-                    console.log('Button clicked:', emotion);
+
+                function updateGif(emotion) {
                     const gif = document.getElementById('animationGif');
-                    switch(emotion) {
+                    switch (emotion) {
                         case 'happy':
                             gif.src = '${happyGif}';
                             break;
                         case 'sad':
                             gif.src = '${sadGif}';
                             break;
-                        case 'excited':
+                        case 'fear':
+                            gif.src = '${sadGif}';
+                            break;
+                        case 'neutral':
+                            gif.src = '${defaultGif}';
+                        break;
+                        case 'surprise':
                             gif.src = '${excitedGif}';
                             break;
                         case 'angry':
@@ -113,5 +116,33 @@ export class SidebarWebViewProvider implements WebviewViewProvider {
             </script>
         </body>
     </html>`;
+    }
+
+    private async fetchEmotion() {
+        try {
+            const fetch = (await import('node-fetch')).default;
+            const response = await fetch('http://127.0.0.1:5000/emotion');
+            const data = await response.json() as EmotionData;
+            const emotion = data.emotion || 'default';
+            if (this.view?.webview) {
+                this.view.webview.postMessage({ command: 'updateEmotion', emotion });
+            }
+        } catch (error) {
+            console.error('Error fetching emotion:', error);
+            if (this.view?.webview) {
+                this.view.webview.postMessage({ command: 'updateEmotion', emotion: 'default' });
+            }
+        }
+    }
+
+    private startFetchingEmotionData(webview: Webview) {
+        this.fetchEmotion(); // Initial fetch
+        this.emotionFetchInterval = setInterval(() => this.fetchEmotion(), 5000); // Fetch every 5 seconds
+    }
+
+    public dispose() {
+        if (this.emotionFetchInterval) {
+            clearInterval(this.emotionFetchInterval);
+        }
     }
 }
