@@ -1,8 +1,8 @@
 {
   "name": "infinite-poc",
   "publisher": "ng",
-  "displayName": "Infinite POC",
-  "description": "Vs code extension poc",
+  "displayName": "Take A Paws",
+  "description": "Intelligent Cat Coding Companion",
   "version": "0.0.1",
   "icon": "media/icons/logo.png",
   "engines": {
@@ -15,10 +15,6 @@
     "*",
     "onCommand:infinite-poc.dialog-modal-message"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/narottamgoyal/infinite-poc-vs-code-extension.git"
-  },
   "main": "./dist/extension.js",
   "contributes": {
     "snippets": [
@@ -31,7 +27,7 @@
       "activitybar": [
         {
           "id": "infinite-poc-view",
-          "title": "Infinite POC",
+          "title": "Take A Paws",
           "icon": "media/icons/infinity-svgrepo-com.svg"
         }
       ]
@@ -41,7 +37,7 @@
         {
           "type": "webview",
           "id": "infinite-poc-sidebar-panel",
-          "name": "Infinite POC",
+          "name": "Take A Paws",
           "icon": "media/icons/beaker.svg"
         }
       ]
@@ -150,7 +146,7 @@
       ]
     },
     "configuration": {
-      "title": "Infinite POC",
+      "title": "Take A Paws",
       "properties": {
         "ipoc.welcom.message.enabled": {
           "type": "boolean",
