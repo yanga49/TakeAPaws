@@ -33,7 +33,7 @@ class SidebarWebViewProvider implements WebviewViewProvider {
         // Listen for messages from the webview
         webviewView.webview.onDidReceiveMessage(async (data) => {
             if (data.command === 'getText') {
-                const text = await getText(data.emotion);
+                const text = await getText(data.message);
                 webviewView.webview.postMessage({ command: 'displayText', text });
             }
         });
@@ -127,25 +127,32 @@ class SidebarWebViewProvider implements WebviewViewProvider {
         function handleButtonClick(emotion) {
             console.log('Button clicked:', emotion);
             const gif = document.getElementById('animationGif');
+            let message = '';
+
             switch(emotion) {
                 case 'happy':
                     gif.src = '${happyGif}';
+                    message = 'I am feeling so happy today! Can you share a fun fact or something interesting?';
                     break;
                 case 'sad':
                     gif.src = '${sadGif}';
+                    message = 'I am feeling sad. Can you share something uplifting?';
                     break;
                 case 'excited':
                     gif.src = '${excitedGif}';
+                    message = 'I am so excited! Do you have any interesting news?';
                     break;
                 case 'angry':
                     gif.src = '${angryGif}';
+                    message = 'I am feeling quite angry. Can you tell me something calming?';
                     break;
                 default:
                     gif.src = '${defaultGif}';
+                    message = 'Just checking in, anything interesting to share?';
             }
 
             // Send a message to the extension to get the text
-            vscode.postMessage({ command: 'getText', emotion: emotion });
+            vscode.postMessage({ command: 'getText', message: message });
         }
 
         // Listen for messages from the extension
