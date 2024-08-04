@@ -42,7 +42,7 @@ async function getText(message: string): Promise<string> {
             },
             body: JSON.stringify({
                 model: "gpt-4o-mini", // Replace with the correct model ID
-                messages: [{ role: "user", content: `Provide a fun fact or message about feeling ${message}.` }]
+                messages: [{ role: "user", content: `Provide a fun fact or message about feeling ${message}. In 1 sentence and make it with cat puns` }]
             })
         });
 
@@ -116,79 +116,129 @@ export class SidebarWebViewProvider implements WebviewViewProvider {
 
     private _getHtmlForWebview(webview: Webview) {
         const nonce = getNonce();
-
+        
         const happyGif = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "happycat.gif"));
         const sadGif = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "sadcat.gif"));
         const excitedGif = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "excitedcat.gif"));
         const angryGif = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "angrycat.gif"));
         const defaultGif = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "defaultcat.gif"));
-
-        return `<!DOCTYPE html>
-    <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta http-equiv="Content-Security-Policy"
-            content="
-                img-src ${webview.cspSource};
-                style-src ${webview.cspSource};
-                script-src 'nonce-${nonce}';">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Cat GIFs</title>
-        </head>
-        <body>
-            <img id="animationGif" width="400" src="${defaultGif}" alt="Animation">
-            <div id="messageContainer" style="text-align: center; margin-top: 20px; font-size: 16px;">Fetching message...</div>
     
-            <!-- Place script at the bottom to ensure the DOM is fully loaded -->
-            <script nonce="${nonce}">
-                const vscode = acquireVsCodeApi();
-                window.addEventListener('message', event => {
-                    const message = event.data;
-                    switch (message.command) {
-                        case 'updateEmotion':
-                            updateGif(message.emotion);
-                            break;
-                        case 'displayText':
-                            displayText(message.text);
-                            break;
+        return `<!DOCTYPE html>
+        <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta http-equiv="Content-Security-Policy"
+                content="
+                    img-src ${webview.cspSource};
+                    style-src ${webview.cspSource};
+                    script-src 'nonce-${nonce}';">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Cat GIFs</title>
+                <style nonce="${nonce}">
+                    body {
+                        font-family: Arial, sans-serif;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        margin: 0;
+                        padding: 20px;
+                        background-color: #282c34;
+                        color: white;
+                        height: 100vh;
                     }
-                });
-
-                function updateGif(emotion) {
-                    const gif = document.getElementById('animationGif');
-                    switch (emotion) {
-                        case 'happy':
-                            gif.src = '${happyGif}';
-                            break;
-                        case 'sad':
-                            gif.src = '${sadGif}';
-                            break;
-                        case 'fear':
-                            gif.src = '${sadGif}';
-                            break;
-                        case 'neutral':
-                            gif.src = '${defaultGif}';
-                            break;
-                        case 'surprise':
-                            gif.src = '${excitedGif}';
-                            break;
-                        case 'angry':
-                            gif.src = '${angryGif}';
-                            break;
-                        default:
-                            gif.src = '${defaultGif}';
+                    .gif-container {
+                        flex-grow: 1;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        margin-bottom: 20px;
                     }
-                    vscode.postMessage({ command: 'getOpenAiText', emotion: emotion });
-                }
-
-                function displayText(text) {
-                    const messageContainer = document.getElementById('messageContainer');
-                    messageContainer.textContent = text;
-                }
-            </script>
-        </body>
-    </html>`;
+                    .txt-box {
+                        width: 100%;
+                        max-width: 1000px;
+                        padding: 10px;
+                        font-size: 16px;
+                        border-radius: 15px;
+                        border: 1px solid #ccc;
+                        background-color: white;
+                        color: black;
+                        resize: none;
+                        overflow: hidden;
+                        box-sizing: border-box;
+                    }
+                    #animationGif {
+                        max-width: 400px;
+                        border-radius: 10px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="gif-container">
+                    <img id="animationGif" src="${defaultGif}" alt="Animation">
+                </div>
+                <textarea class="txt-box" id="messageContainer" readonly>Fetching message...</textarea>
+        
+                <!-- Place script at the bottom to ensure the DOM is fully loaded -->
+                <script nonce="${nonce}">
+                    const vscode = acquireVsCodeApi();
+                    window.addEventListener('message', event => {
+                        const message = event.data;
+                        switch (message.command) {
+                            case 'updateEmotion':
+                                updateGif(message.emotion);
+                                break;
+                            case 'displayText':
+                                displayText(message.text);
+                                break;
+                        }
+                    });
+    
+                    function updateGif(emotion) {
+                        const gif = document.getElementById('animationGif');
+                        switch (emotion) {
+                            case 'happy':
+                                gif.src = '${happyGif}';
+                                break;
+                            case 'sad':
+                                gif.src = '${sadGif}';
+                                break;
+                            case 'fear':
+                                gif.src = '${sadGif}';
+                                break;
+                            case 'neutral':
+                                gif.src = '${defaultGif}';
+                                break;
+                            case 'surprise':
+                                gif.src = '${excitedGif}';
+                                break;
+                            case 'angry':
+                                gif.src = '${angryGif}';
+                                break;
+                            default:
+                                gif.src = '${defaultGif}';
+                        }
+                        vscode.postMessage({ command: 'getOpenAiText', emotion: emotion });
+                    }
+    
+                    function displayText(text) {
+                        const messageContainer = document.getElementById('messageContainer');
+                        messageContainer.value = text;
+                        adjustTextAreaHeight(messageContainer);
+                    }
+    
+                    function adjustTextAreaHeight(textArea) {
+                        textArea.style.height = 'auto';
+                        textArea.style.height = (textArea.scrollHeight) + 'px';
+                    }
+                </script>
+            </body>
+        </html>`;
     }
+    
+    
+    
+    
+    
 
     private async fetchEmotion() {
         try {
