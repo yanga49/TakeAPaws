@@ -1,13 +1,74 @@
-import { CancellationToken, commands, ExtensionContext, OutputChannel, ProgressLocation, Uri, Webview, WebviewView, WebviewViewProvider, WebviewViewResolveContext, window, workspace } from "vscode";
-import { openBrowser } from "../features/register-callback-request";
+import { CancellationToken, commands, ExtensionContext, OutputChannel, Uri, Webview, WebviewView, WebviewViewProvider, WebviewViewResolveContext, window } from "vscode";
 import { readSelectedOrAllText } from "../features/register-commands";
 import { getNonce } from "../util";
-import { CustomEvent } from "./custom-event";
-import { CenterPanel } from "./register-center-panel";
+import fetch from 'node-fetch';
+import * as dotenv from 'dotenv';
+
+// Load environment variables from .env or .zshrc using dotenv
+dotenv.config(); // Ensure this is at the top of your entry file
 
 interface EmotionData {
     emotion: string;
     score: number;
+}
+
+// Define the expected structure of the OpenAI response
+interface OpenAiResponse {
+    choices?: {
+        message: {
+            content: string;
+        };
+    }[];
+    error?: {
+        message: string;
+        type?: string;
+        param?: string;
+        code?: string;
+    };
+}
+
+// Function to get text based on a message from OpenAI API
+async function getText(message: string): Promise<string> {
+    console.log("api key", process.env.OPENAI_API_KEY);
+    console.log('Fetching text for emotion:', message);
+
+    try {
+        // Fetch response from OpenAI API
+        const openAiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`, // Use the API key from environment variables
+            },
+            body: JSON.stringify({
+                model: "gpt-4o-mini", // Replace with the correct model ID
+                messages: [{ role: "user", content: `Provide a fun fact or message about feeling ${message}.` }]
+            })
+        });
+
+        // Cast the result of openAiResponse.json() to the OpenAiResponse type
+        const openAiData = await openAiResponse.json() as OpenAiResponse;
+
+        console.log('API Response:', openAiData); // Log the full API response
+
+        // Handle API errors
+        if (openAiData.error) {
+            throw new Error(`OpenAI API Error: ${openAiData.error.message} (Code: ${openAiData.error.code})`);
+        }
+
+        // Handle case where no choices are returned
+        if (!openAiData.choices || openAiData.choices.length === 0) {
+            throw new Error('No choices returned from OpenAI API');
+        }
+
+        // Extract and return the message content
+        const openAiMessage = openAiData.choices[0].message.content;
+        return openAiMessage;
+
+    } catch (error) {
+        console.error('Error fetching text from OpenAI:', error);
+        return 'Sorry, something went wrong. Please try again later.';
+    }
 }
 
 export function registerWebViewProvider(context: ExtensionContext, op: OutputChannel) {
@@ -43,6 +104,10 @@ export class SidebarWebViewProvider implements WebviewViewProvider {
         webviewView.webview.onDidReceiveMessage(async (data) => {
             console.log('Received message from webview:', data);
             // Handle messages here
+            if (data.command === 'getOpenAiText') {
+                const openAiText = await getText(data.emotion);
+                webviewView.webview.postMessage({ command: 'displayText', text: openAiText });
+            }
         });
 
         // Start fetching emotion data periodically
@@ -50,9 +115,6 @@ export class SidebarWebViewProvider implements WebviewViewProvider {
     }
 
     private _getHtmlForWebview(webview: Webview) {
-        const styleResetUri = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "css", "reset.css"));
-        const styleVSCodeUri = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "css", "vscode.css"));
-
         const nonce = getNonce();
 
         const happyGif = webview.asWebviewUri(Uri.joinPath(this._extensionUri, "media", "happycat.gif"));
@@ -75,6 +137,7 @@ export class SidebarWebViewProvider implements WebviewViewProvider {
         </head>
         <body>
             <img id="animationGif" width="400" src="${defaultGif}" alt="Animation">
+            <div id="messageContainer" style="text-align: center; margin-top: 20px; font-size: 16px;">Fetching message...</div>
     
             <!-- Place script at the bottom to ensure the DOM is fully loaded -->
             <script nonce="${nonce}">
@@ -84,6 +147,9 @@ export class SidebarWebViewProvider implements WebviewViewProvider {
                     switch (message.command) {
                         case 'updateEmotion':
                             updateGif(message.emotion);
+                            break;
+                        case 'displayText':
+                            displayText(message.text);
                             break;
                     }
                 });
@@ -102,7 +168,7 @@ export class SidebarWebViewProvider implements WebviewViewProvider {
                             break;
                         case 'neutral':
                             gif.src = '${defaultGif}';
-                        break;
+                            break;
                         case 'surprise':
                             gif.src = '${excitedGif}';
                             break;
@@ -112,6 +178,12 @@ export class SidebarWebViewProvider implements WebviewViewProvider {
                         default:
                             gif.src = '${defaultGif}';
                     }
+                    vscode.postMessage({ command: 'getOpenAiText', emotion: emotion });
+                }
+
+                function displayText(text) {
+                    const messageContainer = document.getElementById('messageContainer');
+                    messageContainer.textContent = text;
                 }
             </script>
         </body>
